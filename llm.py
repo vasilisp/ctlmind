@@ -1,10 +1,10 @@
 from langchain_openai import ChatOpenAI
 import asyncio
-from systemd import get_unit_status, get_journal_logs
+from systemd import get_unit_status, get_journal_logs, list_failed_units
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, ToolMessage
 
 llm = ChatOpenAI(model="gpt-4.1-mini")
-tools = [get_unit_status, get_journal_logs]
+tools = [get_unit_status, get_journal_logs, list_failed_units]
 llm_with_tools = llm.bind_tools(tools)
 tool_map = {tool.name: tool for tool in tools}
 
