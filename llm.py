@@ -1,10 +1,10 @@
 from typing import List, Dict, Any, cast
 from langchain_openai import ChatOpenAI
-from systemd import get_unit_status, get_journal_logs, list_failed_units
+from systemd import get_unit_status, get_journal_logs, list_failed_units, get_unit_dependencies
 from langchain_core.messages import AIMessage, BaseMessage, ToolMessage
 
 llm = ChatOpenAI(model="gpt-4.1-mini")
-tools = [get_unit_status, get_journal_logs, list_failed_units]
+tools = [get_unit_status, get_journal_logs, list_failed_units, get_unit_dependencies]
 llm_with_tools = llm.bind_tools(tools)
 tool_map: Dict[str, Any] = {tool.name: tool for tool in tools}
 
