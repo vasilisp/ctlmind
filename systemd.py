@@ -13,19 +13,22 @@ async def _get_systemd_objects():
     manager = obj.get_interface('org.freedesktop.systemd1.Manager')
     return bus, manager
 
+async def _get_unit_properties(unit_name: str):
+    """Helper to get unit properties interface for a given unit."""
+    bus, manager = await _get_systemd_objects()
+    unit_path = await manager.call_get_unit(unit_name)  # type: ignore
+    unit_introspection = await bus.introspect('org.freedesktop.systemd1', unit_path)
+    unit_obj = bus.get_proxy_object('org.freedesktop.systemd1', unit_path, unit_introspection)
+    unit_props = unit_obj.get_interface('org.freedesktop.DBus.Properties')
+    return unit_props
+
 @tool
 async def get_unit_status(unit_name: str) -> str:
     """Gets the status of a single systemd unit. Wildcards are not supported. If the unit name has no suffix, '.service' is appended."""
     if '.' not in unit_name:
         unit_name = f"{unit_name}.service"
     try:
-        bus, manager = await _get_systemd_objects()
-
-        unit_path = await manager.call_get_unit(unit_name)  # type: ignore
-        unit_introspection = await bus.introspect('org.freedesktop.systemd1', unit_path)
-        unit_obj = bus.get_proxy_object('org.freedesktop.systemd1', unit_path, unit_introspection)
-        unit_props = unit_obj.get_interface('org.freedesktop.DBus.Properties')
-
+        unit_props = await _get_unit_properties(unit_name)
         active_state = await unit_props.call_get('org.freedesktop.systemd1.Unit', 'ActiveState')  # type: ignore
         return active_state.value
     except Exception as e:
@@ -67,12 +70,7 @@ async def get_unit_dependencies(unit_name: str) -> Dict[str, Any]:
     if '.' not in unit_name:
         unit_name = f"{unit_name}.service"
     try:
-        bus, manager = await _get_systemd_objects()
-
-        unit_path = await manager.call_get_unit(unit_name)  # type: ignore
-        unit_introspection = await bus.introspect('org.freedesktop.systemd1', unit_path)
-        unit_obj = bus.get_proxy_object('org.freedesktop.systemd1', unit_path, unit_introspection)
-        unit_props = unit_obj.get_interface('org.freedesktop.DBus.Properties')
+        unit_props = await _get_unit_properties(unit_name)
 
         # Get various dependency properties
         requires = await unit_props.call_get('org.freedesktop.systemd1.Unit', 'Requires')  # type: ignore
