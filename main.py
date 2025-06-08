@@ -1,10 +1,11 @@
 import asyncio
+from typing import List
 from llm import process_chat
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import BaseMessage, HumanMessage
 
-async def main():
+async def main() -> None:
     print("Welcome to the systemd-enabled LLM chat. Type 'exit' or 'quit' to end.")
-    chat_history = []
+    chat_history: List[BaseMessage] = []
     while True:
         try:
             prompt = input("> ")

@@ -1,5 +1,5 @@
 import asyncio
-from dbus_next.aio import MessageBus
+from dbus_next.aio.message_bus import MessageBus
 from dbus_next.constants import BusType
 from langchain_core.tools import tool
 import logging
@@ -21,12 +21,12 @@ async def get_unit_status(unit_name: str) -> str:
     try:
         bus, manager = await _get_systemd_objects()
 
-        unit_path = await manager.call_get_unit(unit_name)
+        unit_path = await manager.call_get_unit(unit_name)  # type: ignore
         unit_introspection = await bus.introspect('org.freedesktop.systemd1', unit_path)
         unit_obj = bus.get_proxy_object('org.freedesktop.systemd1', unit_path, unit_introspection)
         unit_props = unit_obj.get_interface('org.freedesktop.DBus.Properties')
 
-        active_state = await unit_props.call_get('org.freedesktop.systemd1.Unit', 'ActiveState')
+        active_state = await unit_props.call_get('org.freedesktop.systemd1.Unit', 'ActiveState')  # type: ignore
         return active_state.value
     except Exception as e:
         logging.error(f"Error getting status for unit '{unit_name}':", exc_info=True)
@@ -67,7 +67,7 @@ async def list_failed_units() -> List[str]:
     try:
         _, manager = await _get_systemd_objects()
 
-        units = await manager.call_list_units()
+        units = await manager.call_list_units()  # type: ignore
 
         failed_units = [unit[0] for unit in units if unit[3] == 'failed']
 

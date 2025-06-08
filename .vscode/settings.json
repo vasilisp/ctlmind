@@ -1,0 +1,62 @@
+{
+  "python.analysis.typeCheckingMode": "strict",
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.autoFormatStrings": true,
+  "python.analysis.completeFunctionParens": true,
+  "python.analysis.inlayHints.variableTypes": true,
+  "python.analysis.inlayHints.functionReturnTypes": true,
+  "python.analysis.inlayHints.callArgumentNames": "partial",
+  "python.analysis.diagnosticMode": "workspace",
+  "python.analysis.include": [
+    "."
+  ],
+  "python.analysis.exclude": [
+    "**/__pycache__",
+    "**/.git"
+  ],
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportMissingImports": "error",
+    "reportMissingTypeStubs": "none",
+    "reportUnusedImport": "error",
+    "reportUnusedVariable": "error",
+    "reportDuplicateImport": "error",
+    "reportGeneralTypeIssues": "error",
+    "reportOptionalMemberAccess": "error",
+    "reportOptionalCall": "error",
+    "reportOptionalOperand": "error",
+    "reportConstantRedefinition": "error",
+    "reportIncompatibleMethodOverride": "error",
+    "reportIncompatibleVariableOverride": "error",
+    "reportOverlappingOverloads": "error",
+    "reportUntypedFunctionDecorator": "error",
+    "reportUntypedClassDecorator": "error",
+    "reportUntypedBaseClass": "error",
+    "reportUntypedNamedTuple": "error",
+    "reportPrivateUsage": "error",
+    "reportTypeCommentUsage": "error",
+    "reportPrivateImportUsage": "error",
+    "reportUnusedClass": "warning",
+    "reportUnusedFunction": "warning",
+    "reportUnnecessaryIsInstance": "error",
+    "reportUnnecessaryCast": "error",
+    "reportUnnecessaryComparison": "error",
+    "reportUnnecessaryContains": "error",
+    "reportImplicitStringConcatenation": "error",
+    "reportInvalidStringEscapeSequence": "error",
+    "reportUnknownParameterType": "warning",
+    "reportUnknownArgumentType": "warning",
+    "reportUnknownLambdaType": "warning",
+    "reportUnknownVariableType": "warning",
+    "reportUnknownMemberType": "warning",
+    "reportMissingParameterType": "error",
+    "reportMissingTypeArgument": "error",
+    "reportInvalidTypeVarUse": "error",
+    "reportCallInDefaultInitializer": "error",
+    "reportUnnecessaryTypeIgnoreComment": "error",
+    "reportMatchNotExhaustive": "error"
+  },
+  "python.analysis.stubPath": "./typings",
+  "python.analysis.ignore": [
+    "**/dbus_next/**"
+  ]
+}
