@@ -10,16 +10,27 @@ tool_map: Dict[str, Any] = {tool.name: tool for tool in tools}
 
 async def process_chat(messages: List[BaseMessage]) -> BaseMessage:
     """
-    Processes a list of messages, handles tool calls, and returns the final LLM response.
+    Processes a list of messages, handles tool calls iteratively, and returns the final LLM response.
+    Continues calling tools until the LLM response contains no more tool calls (reaches fixpoint).
     """
-    # First invocation to see if the model wants to call a tool
-    ai_response = cast(AIMessage, await llm_with_tools.ainvoke(messages))
+    current_messages = messages[:]
+    max_iterations = 10  # Prevent infinite loops
+    iteration = 0
+    ai_response = None
 
-    # If the model response contains tool calls, execute them
-    if ai_response.tool_calls:
-        print("\nTool Calls:")
+    while iteration < max_iterations:
+        # Invoke the LLM with current messages
+        ai_response = cast(AIMessage, await llm_with_tools.ainvoke(current_messages))
+
+        # If no tool calls, we've reached the fixpoint
+        if not ai_response.tool_calls:
+            return ai_response
+
+        # Process tool calls
+        print(f"\nTool Calls (iteration {iteration + 1}):")
         for tool_call in ai_response.tool_calls:
             print(f"  - {tool_call['name']}({tool_call['args']})")
+
         tool_messages: List[ToolMessage] = []
         for tool_call in ai_response.tool_calls:
             tool_to_call = tool_map.get(tool_call["name"])
@@ -42,11 +53,13 @@ async def process_chat(messages: List[BaseMessage]) -> BaseMessage:
                         tool_call_id=tool_call["id"]
                     )
                 )
-        # Second invocation with the tool results
-        # We add the original AI response and the new tool messages to the history
-        final_response = cast(AIMessage, await llm_with_tools.ainvoke(messages + [ai_response] + tool_messages))
-    else:
-        # If there are no tool calls, the first response is the final one
-        final_response = ai_response
 
-    return final_response
+        # Add the AI response and tool messages to the conversation history
+        current_messages.extend([ai_response] + tool_messages)
+        iteration += 1
+
+    # If we reach max iterations, return the last AI response (which might still have tool calls)
+    print(f"\nWarning: Reached maximum iterations ({max_iterations}). Final response may contain unexecuted tool calls.")
+    # ai_response should always be defined here since we enter the loop at least once
+    assert ai_response is not None, "ai_response should be defined after at least one iteration"
+    return ai_response
