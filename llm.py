@@ -33,6 +33,15 @@ async def process_chat(messages: List[BaseMessage]) -> BaseMessage:
                         tool_call_id=tool_call["id"]
                     )
                 )
+            else:
+                # Handle the case where the tool is not found
+                error_message = f"Tool '{tool_call['name']}' not found in available tools"
+                tool_messages.append(
+                    ToolMessage(
+                        content=error_message,
+                        tool_call_id=tool_call["id"]
+                    )
+                )
         # Second invocation with the tool results
         # We add the original AI response and the new tool messages to the history
         final_response = cast(AIMessage, await llm_with_tools.ainvoke(messages + [ai_response] + tool_messages))

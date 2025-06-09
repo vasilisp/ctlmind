@@ -3,7 +3,7 @@ from dbus_next.aio.message_bus import MessageBus
 from dbus_next.constants import BusType
 from langchain_core.tools import tool
 import logging
-from typing import List, Dict, Any
+from typing import Dict, Any
 
 async def _get_systemd_objects():
     """Helper to get systemd bus and manager objects."""
@@ -111,7 +111,7 @@ async def get_unit_dependencies(unit_name: str) -> Dict[str, Any]:
         }
 
 @tool
-async def list_failed_units() -> List[str]:
+async def list_failed_units() -> Dict[str, Any]:
     """Gets a list of failed systemd units."""
     try:
         _, manager = await _get_systemd_objects()
@@ -120,7 +120,18 @@ async def list_failed_units() -> List[str]:
 
         failed_units = [unit[0] for unit in units if unit[3] == 'failed']
 
-        return failed_units
-    except Exception:
+        return {
+            "failed_units": failed_units,
+            "count": len(failed_units),
+            "has_failures": len(failed_units) > 0,
+            "summary": f"Found {len(failed_units)} failed unit(s)" if failed_units else "No failed units found"
+        }
+    except Exception as e:
         logging.error("Error listing failed units:", exc_info=True)
-        raise
+        return {
+            "failed_units": [],
+            "count": 0,
+            "has_failures": False,
+            "error": str(e),
+            "summary": f"An error occurred while listing failed units: {e}"
+        }
